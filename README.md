@@ -1,0 +1,2 @@
+# SuperStitch
+Automated Image Stitching
