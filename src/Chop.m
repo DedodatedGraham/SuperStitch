@@ -7,13 +7,12 @@ imgPath = append(pwd,'\input\',inputPath);
 mainImg = imread(imgPath);
 pos = struct("x",0,"y",0,"w",0,"h",0);
 imgpos(N,M) = pos; 
-[px,py,ncc] = size(mainImg);
-%imgPart = zeros(M,N,ncc);
+[px,py,~] = size(mainImg);
 nx = floor(px/N);
 ny = floor(py/M);
 onx = floor(nx * O * .01);
 ony = floor(ny * O * .01);
-%assign pics
+%ouput partitoned pictures
 % end
 ip = 1;
 for i=1:1:N
@@ -24,6 +23,7 @@ for i=1:1:N
         imgpos(i,j).y = jp;
         imgpos(i,j).w = nx;
         imgpos(i,j).h = ny;
+        %Apply overlap if not on edge, or final width correction
         if i ~= 1
             imgpos(i,j).x = imgpos(i,j).x - onx;
         end
@@ -40,7 +40,6 @@ for i=1:1:N
         else 
             imgpos(i,j).h = imgpos(i,j).h + ony;
         end
-        %Apply overlap if nt on edge
         %Finally output image
         temp = mainImg(imgpos(i,j).x : imgpos(i,j).x + imgpos(i,j).w,imgpos(i,j).y : imgpos(i,j).y + imgpos(i,j).h,:);
         slicepath = append(pwd,'\input\brokenImg\',num2str(imgpos(i,j).x),'-',num2str(imgpos(i,j).y),'.png');
@@ -48,5 +47,6 @@ for i=1:1:N
         jp = jp + ny;
     end
     ip = ip + nx;
+end
 end
 
