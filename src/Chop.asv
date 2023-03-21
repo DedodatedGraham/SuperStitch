@@ -14,6 +14,7 @@ ny = floor(py/M);
 onx = floor(nx * O * .01);
 ony = floor(ny * O * .01);
 %assign pics
+1;
 % end
 ip = 1;
 for i=1:1:N
@@ -33,12 +34,12 @@ for i=1:1:N
         if i == N
             imgpos(i,j).w = px - imgpos(i,j).x; 
         else
-            imgpos(i,j).w = imgpos(i,j).w + onx;
+
         end
         if j == M
             imgpos(i,j).h = py - imgpos(i,j).y; 
-        else 
-            imgpos(i,j).h = imgpos(i,j).h + ony;
+        else
+
         end
         %Apply overlap if nt on edge
         %Finally output image
