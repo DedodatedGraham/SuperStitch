@@ -3,9 +3,20 @@ function []  = SuperStitch(inputPath,N,M)
 %Input Path will be externally provided and have the path 
 % past SuperStitch/Input
 %N is the row amount of photos needed to be loaded in
-s = append(pwd,'\input\',inputPath);
+
+%Formatting for different OS 
+if ispc()%if Windows
+    s = append(pwd,'\input\',inputPath);
+else%Linux/Mac
+    s = append(pwd,'/input/',inputPath);
+end
 timgPath = dir(fullfile(s,'*.png'));
+
+%Setup needed
 count = 1;
+[px,py,colordep] = size(imread(append(s,timgPath(1,:).name)));
+imgstruct = struct('image',zeros(px,py,colordep));
+data = repmat(imgstruct,N,M);
 for i=1:1:N
     for j=1:1:M
         %Load in image and assign x & y values
@@ -15,8 +26,8 @@ for i=1:1:N
         x = str2double(x(1));
         y = str2double(y(1));
         %Put data into a structure to hold 
-        data = struct('image',cimg,'x',x,'y',y)
-        
+        %data = struct('image',cimg,'x',x,'y',y)
+        data(N,M).image = cimg;
         count = count + 1;
     end
 end
