@@ -9,6 +9,7 @@ Comminuication:
 
 Stitching:
   SuperStitch.m - Responsible for organizing inputs and outputs and running stitching
+  "Test Case Run : SuperStitch('brokenImg/',38,12);"
   MergeSection.m - Responsible for merging two photots into the master photo
   FindAreaInterest.m - Finds the points in a given picture, which can be used to merge photos
   
