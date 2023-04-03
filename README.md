@@ -10,6 +10,7 @@ Comminuication:
 Stitching:
 SuperStitch.m - Responsible for organizing inputs and outputs and running stitching
   "Test Case Run : SuperStitch('brokenImg/',38,12);"
+
 LocalStitch.m - Responsible for merging photots into the master photo
   ran by "SuperStitch.m"
   
