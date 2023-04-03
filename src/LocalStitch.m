@@ -1,7 +1,6 @@
 function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
 %% direction and image setup
     strongcount = 20;
-
     %Here we intake our data and stitch together surounding data
     newImg = lastImg;
     %First if at starting pos, we add our current pic into the final image
@@ -27,33 +26,39 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
             strongt = thisData.surf.selectStrongest(strongcount);
             strongc = compData.surf.selectStrongest(strongcount);
             if iagg ~= 0
+                ot = 0;
+                od = 0;
+                ol = 0;
+                orr = 0;
                 if iagg == -1
                     %left
                     ol = thisData.x;
-                    or = compData.x + cw;
+                    orr = compData.x + cw;
                 else
                     %right
                     ol = compData.x;
-                    or = thisData.x + tw;
+                    orr = thisData.x + tw;
                 end
                 %Next we line up the overlapping regions points
-                tptlist = zeros(1);
-                cptlist = zeros(1);
-                for cnt=1:strongcount
-                    stx = strongt(cnt).Location(0);
-                    ctx = strongc(cnt).Location(0);
-                    if stx > ol && stx < or
-                        if size(tptlist) == 1
-                            tptlist(1) = strongt(cnt);
+                tptlist = zeros(1,2);
+                cptlist = zeros(1,2);
+                for cnt=1:strongt.Count
+                    st = strongt(cnt).Location;
+                    if st(1) > ol && st(1) < orr
+                        if size(tptlist,1) == 1
+                            tptlist = strongt(cnt).Location;
                         else
-                            tptlist = [tptlist,strongt(cnt)];
+                            tptlist = [tptlist;strongt(cnt).Location];
                         end
                     end
-                    if ctx > ol && ctx < or
-                        if size(cptlist) == 1
-                            cptlist(1) = strongc(cnt);
+                end
+                for cnt=1:strongc.Count
+                    ct = strongc(cnt).Location;
+                    if ct(1) > ol && ct(1) < orr
+                        if size(cptlist,1) == 1
+                            cptlist = strongc(cnt).Location;
                         else
-                            cptlist = [cptlist,strongc(cnt)];
+                            cptlist = [cptlist;strongc(cnt).Location];
                         end
                     end
                 end
@@ -69,23 +74,25 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                     od = compData.y + ch;
                 end
                 %Next we line up the overlapping regions points
-                tptlist = zeros(1);
-                cptlist = zeros(1);
-                for cnt=1:strongcount
-                    sty = strongt(cnt).Location(1);
-                    cty = strongc(cnt).Location(1);
-                    if sty > ot && sty < od
-                        if size(tptlist) == 1
-                            tptlist(1) = strongt(cnt);
+                tptlist = zeros(1,2);
+                cptlist = zeros(1,2);
+                for cnt=1:strongt.Count
+                    st = strongt(cnt).Location;
+                    if st(2) > ot && st(2) < od
+                        if size(tptlist,1) == 1
+                            tptlist = strongt(cnt).Location;
                         else
-                            tptlist = [tptlist,strongt(cnt)];
+                            tptlist = [tptlist;strongt(cnt).Location];
                         end
                     end
-                    if cty > ot && cty < od
-                        if size(cptlist) == 1
-                            cptlist(1) = strongc(cnt);
+                end
+                for cnt=1:strongc.Count
+                    ct = strongc(cnt).Location;
+                    if ct(2) > ot && ct(2) < od
+                        if size(cptlist,1) == 1
+                            cptlist = strongc(cnt).Location;
                         else
-                            cptlist = [cptlist,strongc(cnt)];
+                            cptlist = [cptlist;strongc(cnt).Location];
                         end
                     end
                 end

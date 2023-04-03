@@ -54,14 +54,17 @@ disp(append('Time for Setup: ',string(tEnd),' (s)'));
 tStart = tic;
 for i=1:1:N
     %snake
-    if mod(i,2) == 0
+    
+    if mod(i,2) ~= 0
         for j=1:1:M
+            
             %The inside of both sides are realtively the same, so we will pass everything
             %to a new functions
             finalImg = LocalStitch(data,i,j,N,M,finalImg);
         end
     else
         for j=M:-1:1
+            
             finalImg = LocalStitch(data,i,j,N,M,finalImg);
         end
     end
