@@ -37,6 +37,27 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                     or = thisData.x + tw;
                 end
                 %Next we line up the overlapping regions points
+                tptlist = zeros(1);
+                cptlist = zeros(1);
+                for cnt=1:strongcount
+                    stx = strongt(cnt).Location(0);
+                    ctx = strongc(cnt).Location(0);
+                    if stx > ol && stx < or
+                        if size(tptlist) == 1
+                            tptlist(1) = strongt(cnt);
+                        else
+                            tptlist = [tptlist,strongt(cnt)];
+                        end
+                    end
+                    if ctx > ol && ctx < or
+                        if size(cptlist) == 1
+                            cptlist(1) = strongc(cnt);
+                        else
+                            cptlist = [cptlist,strongc(cnt)];
+                        end
+                    end
+                end
+                %Now we have all points which should be in the same area:)
             else
                 if jagg == -1
                     %down
@@ -48,6 +69,27 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                     od = compData.y + ch;
                 end
                 %Next we line up the overlapping regions points
+                tptlist = zeros(1);
+                cptlist = zeros(1);
+                for cnt=1:strongcount
+                    sty = strongt(cnt).Location(1);
+                    cty = strongc(cnt).Location(1);
+                    if sty > ot && sty < od
+                        if size(tptlist) == 1
+                            tptlist(1) = strongt(cnt);
+                        else
+                            tptlist = [tptlist,strongt(cnt)];
+                        end
+                    end
+                    if cty > ot && cty < od
+                        if size(cptlist) == 1
+                            cptlist(1) = strongc(cnt);
+                        else
+                            cptlist = [cptlist,strongc(cnt)];
+                        end
+                    end
+                end
+                %Now we have all points which should be in the same area:)
             end
         end
     end
