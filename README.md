@@ -8,13 +8,13 @@ Stage Control:
 Comminuication:
 
 Stitching:
-  SuperStitch.m - Responsible for organizing inputs and outputs and running stitching
+SuperStitch.m - Responsible for organizing inputs and outputs and running stitching
   "Test Case Run : SuperStitch('brokenImg/',38,12);"
-  MergeSection.m - Responsible for merging two photots into the master photo
-  FindAreaInterest.m - Finds the points in a given picture, which can be used to merge photos
+LocalStitch.m - Responsible for merging photots into the master photo
+  ran by "SuperStitch.m"
   
 Post Processing:
-  FinalTouches.m - Corrects image to be optimal contrast value without losing information
+FinalTouches.m - Corrects image to be optimal contrast value without losing information
 Other Functions:
-  Chop.m - Creates simulated pictures for which stitching can be ran on
+Chop.m - Creates simulated pictures for which stitching can be ran on
 
