@@ -1,4 +1,5 @@
 function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
+%disp(append('current=[',string(i),',',string(j),']'));
 %% direction and image setup
     strongcount = 20;
     %Here we intake our data and stitch together surounding data
@@ -8,8 +9,8 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
     if i == 1 && j == 1
         tx = data(i,j).x;
         ty = data(i,j).y;
-        [tw,th,~] = size(data(i,j).image);
-        newImg(tx:tx+tw-1,ty:ty+th-1,:) = data(i,j).image;
+        [th,tw,~] = size(data(i,j).image);
+        newImg(ty:ty+th-1,tx:tx+tw-1,:) = data(i,j).image;
         data(i,j).added = true;
     end
 %% stitch each neighbor 
@@ -21,82 +22,93 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
         if go %Note prevents tries for already stitched into the congolomerage images
             %Now that we have two data blocks, we want to calculate overlap
             %region and gather the surfpoints
-            [tw,th,~] = size(thisData.image);
-            [cw,ch,~] = size(compData.image);
+            [th,tw,~] = size(thisData.image);
+            [ch,cw,~] = size(compData.image);
             strongt = thisData.surf.selectStrongest(strongcount);
             strongc = compData.surf.selectStrongest(strongcount);
             if iagg ~= 0
-                ot = 0;
-                od = 0;
-                ol = 0;
-                orr = 0;
                 if iagg == -1
-                    %left
-                    ol = thisData.x;
-                    orr = compData.x + cw;
-                    disp(append('current=[',string(i),',',string(j),'] reaching  x=',string(iagg)));
-                    disp(append('AbsLeftBound=',string(ol),' AbsRightBound=',string(orr)));
+                    %up
+                    ou = thisData.y;
+                    od = compData.y + ch;
+                    %disp(append('current=[',string(i),',',string(j),'] reaching  x=',string(iagg)));
+                    %disp(append('AbsLeftBound=',string(ol),' AbsRightBound=',string(orr)));
                 else
-                    %right
-                    ol = compData.x;
-                    orr = thisData.x + tw;
-                    disp(append('current=[',string(i),',',string(j),'] reaching  x=',string(iagg)));
-                    disp(append('AbsLeftBound=',string(ol),' AbsRightBound=',string(orr)));
+                    %down
+                    ou = compData.y;
+                    od = thisData.y + th;
+                    %disp(append('current=[',string(i),',',string(j),'] reaching  x=',string(iagg)));
+                    %disp(append('AbsLeftBound=',string(ol),' AbsRightBound=',string(orr)));
                 end
                 %Next we line up the overlapping regions points
                 tptlist = zeros(1,2);
                 cptlist = zeros(1,2);
+                added = 0;
                 for cnt=1:strongt.Count
                     st = strongt(cnt).Location;
-                    if st(1) > ol && st(1) < orr
-                        if size(tptlist,1) == 1
+                    if st(2) + thisData.y > ou && st(2) + thisData.y < od
+                        if added == 0
                             tptlist = strongt(cnt).Location;
+                            added = added + 1;
                         else
-                            tptlist = [tptlist;strongt(cnt).Location]
+                            tptlist = [tptlist;strongt(cnt).Location];
                         end
                     end
                 end
+                added = 0;
                 for cnt=1:strongc.Count
                     ct = strongc(cnt).Location;
-                    if ct(1) > ol && ct(1) < orr
-                        if size(cptlist,1) == 1
+                    if ct(2) + compData.y > ou && ct(2) + compData.y < od
+                        if added == 0
                             cptlist = strongc(cnt).Location;
+                            added = added + 1;
                         else
-                            cptlist = [cptlist;strongc(cnt).Location]
+                            cptlist = [cptlist;strongc(cnt).Location];
                         end
                     end
                 end
                 %Now we have all points which should be in the same area:)
-            else
+                if i == 1 && j == 1
+                    ou
+                    od
+                    iagg
+                    tptlist
+                    cptlist
+                end
+            elseif jagg ~= 0
                 if jagg == -1
-                    %down
-                    ot = compData.y;
-                    od = thisData.y + th;
+                    %left
+                    ol = thisData.x;
+                    or = compData.x + cw;
                 else
-                    %up
-                    ot = thisData.y;
-                    od = compData.y + ch;
+                    %right
+                    ol = compData.x;
+                    or = thisData.x + tw;
                 end
                 %Next we line up the overlapping regions points
                 tptlist = zeros(1,2);
                 cptlist = zeros(1,2);
+                added = 0;
                 for cnt=1:strongt.Count
                     st = strongt(cnt).Location;
-                    if st(2) > ot && st(2) < od
-                        if size(tptlist,1) == 1
+                    if st(1) + thisData.x > ol && st(1) + thisData.x < or
+                        if added == 0
                             tptlist = strongt(cnt).Location;
+                            added = added + 1;
                         else
-                            tptlist = [tptlist;strongt(cnt).Location]
+                            tptlist = [tptlist;strongt(cnt).Location];
                         end
                     end
                 end
+                added = 0;
                 for cnt=1:strongc.Count
                     ct = strongc(cnt).Location;
-                    if ct(2) > ot && ct(2) < od
-                        if size(cptlist,1) == 1
+                    if ct(1) + compData.x > ol && ct(1) + compData.x < or
+                        if added == 0
                             cptlist = strongc(cnt).Location;
+                            added = added + 1;
                         else
-                            cptlist = [cptlist;strongc(cnt).Location]
+                            cptlist = [cptlist;strongc(cnt).Location];
                         end
                     end
                 end

@@ -13,15 +13,23 @@ else%Linux/Mac
     s = append(pwd,'/input/',inputPath);
 end
 timgPath = dir(fullfile(s,'*.png'));
-
 %Setup needed
 count = 1;
 imgstruct = struct('image',zeros(1,1,1),'surf',SURFPoints,'x',0,'y',0,'added',false);
-data = repmat(imgstruct,N,M);
+data = repmat(imgstruct,M,N);
 tw = 0;%total width 
 th = 0;%total heigth
-for i=1:1:N
-    for j=1:1:M
+%Sort files for order, ie create a list of pictures which are sorted along
+%the X and then the Y
+sortedname(size(timgPath),1) = ' ';
+for i=1:1:M
+    for j=1:1:N
+        
+    end
+end
+%Next load in pictues in order
+for i=1:1:M
+    for j=1:1:N
         %Load in image and assign x & y values
         cimg = imread(append(s,timgPath(count,:).name));
         x = split(timgPath(count,:).name,'-');
@@ -34,7 +42,7 @@ for i=1:1:N
         data(i,j).y = y(1);
         temp = detectSURFFeatures(rgb2gray(cimg));
         data(i,j).surf = temp;
-        if i == N && j == M
+        if i == M && j == N
             %Gets width and height of total image size with overlap
             [h,w,~] = size(cimg);
             tw = data(i,j).x + w;
@@ -52,19 +60,17 @@ disp(append('Time for Setup: ',string(tEnd),' (s)'));
 %Next we start the stitching method, What we do on this layer is utalize
 %the snake pattern for best stitching...(maybe? we will see)
 tStart = tic;
-for i=1:1:N
+for i=1:1:M
     %snake
-    
     if mod(i,2) ~= 0
-        for j=1:1:M
+        for j=1:1:N
             
             %The inside of both sides are realtively the same, so we will pass everything
             %to a new functions
             finalImg = LocalStitch(data,i,j,N,M,finalImg);
         end
     else
-        for j=M:-1:1
-            
+        for j=N:-1:1
             finalImg = LocalStitch(data,i,j,N,M,finalImg);
         end
     end
