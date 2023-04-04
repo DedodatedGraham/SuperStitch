@@ -34,10 +34,14 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                     %left
                     ol = thisData.x;
                     orr = compData.x + cw;
+                    disp(append('current=[',string(i),',',string(j),'] reaching  x=',string(iagg)));
+                    disp(append('AbsLeftBound=',string(ol),' AbsRightBound=',string(orr)));
                 else
                     %right
                     ol = compData.x;
                     orr = thisData.x + tw;
+                    disp(append('current=[',string(i),',',string(j),'] reaching  x=',string(iagg)));
+                    disp(append('AbsLeftBound=',string(ol),' AbsRightBound=',string(orr)));
                 end
                 %Next we line up the overlapping regions points
                 tptlist = zeros(1,2);
@@ -48,7 +52,7 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                         if size(tptlist,1) == 1
                             tptlist = strongt(cnt).Location;
                         else
-                            tptlist = [tptlist;strongt(cnt).Location];
+                            tptlist = [tptlist;strongt(cnt).Location]
                         end
                     end
                 end
@@ -58,7 +62,7 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                         if size(cptlist,1) == 1
                             cptlist = strongc(cnt).Location;
                         else
-                            cptlist = [cptlist;strongc(cnt).Location];
+                            cptlist = [cptlist;strongc(cnt).Location]
                         end
                     end
                 end
@@ -82,7 +86,7 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                         if size(tptlist,1) == 1
                             tptlist = strongt(cnt).Location;
                         else
-                            tptlist = [tptlist;strongt(cnt).Location];
+                            tptlist = [tptlist;strongt(cnt).Location]
                         end
                     end
                 end
@@ -92,7 +96,7 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                         if size(cptlist,1) == 1
                             cptlist = strongc(cnt).Location;
                         else
-                            cptlist = [cptlist;strongc(cnt).Location];
+                            cptlist = [cptlist;strongc(cnt).Location]
                         end
                     end
                 end
