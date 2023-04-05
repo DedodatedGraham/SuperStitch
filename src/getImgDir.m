@@ -7,7 +7,7 @@ function [go,outData,iagg,jagg] = getImgDir(data,i,j,N,M,pos)
     jagg = 0;
     if pos == 1 && i ~= 1 
         if data(i - 1,j).added ~= true
-            outData = data(i,j);
+            outData = data(i - 1,j);
         else
             go = false;
         end

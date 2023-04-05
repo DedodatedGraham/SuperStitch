@@ -12,24 +12,19 @@ if ispc()%if Windows
 else%Linux/Mac
     s = append(pwd,'/input/',inputPath);
 end
-timgPath = dir(fullfile(s,'*.png'));
+timgPath = natsortfiles(dir(fullfile(s,'*.png')));
+
 %Setup needed
 count = 1;
 imgstruct = struct('image',zeros(1,1,1),'surf',SURFPoints,'x',0,'y',0,'added',false);
 data = repmat(imgstruct,M,N);
 tw = 0;%total width 
 th = 0;%total heigth
-%Sort files for order, ie create a list of pictures which are sorted along
+
+%Next load/Sort files for order, ie create a list of pictures which are sorted along
 %the X and then the Y
-sortedname(size(timgPath),1) = ' ';
-for i=1:1:M
-    for j=1:1:N
-        
-    end
-end
-%Next load in pictues in order
-for i=1:1:M
-    for j=1:1:N
+for j=1:1:N
+    for i=1:1:M
         %Load in image and assign x & y values
         cimg = imread(append(s,timgPath(count,:).name));
         x = split(timgPath(count,:).name,'-');
@@ -51,6 +46,7 @@ for i=1:1:M
         count = count + 1;
     end
 end
+
 finalImg = zeros(th,tw,3);%Final image is our output congolermate with out pixel size
 %Time to load & preprocess data
 tEnd = toc(tStart);

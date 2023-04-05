@@ -43,76 +43,94 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                 %Next we line up the overlapping regions points
                 tptlist = zeros(1,2);
                 cptlist = zeros(1,2);
-                added = 0;
+                addedt = 0;
                 for cnt=1:strongt.Count
                     st = strongt(cnt).Location;
                     if st(2) + thisData.y > ou && st(2) + thisData.y < od
-                        if added == 0
-                            tptlist = strongt(cnt).Location;
-                            added = added + 1;
+                        if addedt == 0
+                            tptlist = [st(1) + thisData.x,st(2) + thisData.y];
+                            addedt = addedt + 1;
                         else
-                            tptlist = [tptlist;strongt(cnt).Location];
+                            tptlist = [tptlist;st(1) + thisData.x,st(2) + thisData.y];
                         end
                     end
                 end
-                added = 0;
+                addedc = 0;
                 for cnt=1:strongc.Count
                     ct = strongc(cnt).Location;
                     if ct(2) + compData.y > ou && ct(2) + compData.y < od
-                        if added == 0
-                            cptlist = strongc(cnt).Location;
-                            added = added + 1;
+                        if addedc == 0
+                            cptlist = [ct(1) + compData.x,ct(2) + compData.y];
+                            addedc = addedc + 1;
                         else
-                            cptlist = [cptlist;strongc(cnt).Location];
+                            cptlist = [cptlist;ct(1) + compData.x,ct(2) + compData.y];
                         end
                     end
-                end
-                %Now we have all points which should be in the same area:)
-                if i == 1 && j == 1
-                    ou
-                    od
-                    iagg
-                    tptlist
-                    cptlist
                 end
             elseif jagg ~= 0
                 if jagg == -1
                     %left
                     ol = thisData.x;
-                    or = compData.x + cw;
+                    orr = compData.x + cw;
                 else
                     %right
                     ol = compData.x;
-                    or = thisData.x + tw;
+                    orr = thisData.x + tw;
                 end
                 %Next we line up the overlapping regions points
                 tptlist = zeros(1,2);
                 cptlist = zeros(1,2);
-                added = 0;
+                addedt = 0;
                 for cnt=1:strongt.Count
                     st = strongt(cnt).Location;
-                    if st(1) + thisData.x > ol && st(1) + thisData.x < or
-                        if added == 0
-                            tptlist = strongt(cnt).Location;
-                            added = added + 1;
+                    if st(1) + thisData.x > ol && st(1) + thisData.x < orr
+                        if addedt == 0
+                            tptlist = [st(1) + thisData.x,st(2) + thisData.y];
+                            addedt = addedt + 1;
                         else
-                            tptlist = [tptlist;strongt(cnt).Location];
+                            tptlist = [tptlist;st(1) + thisData.x,st(2) + thisData.y];
                         end
                     end
                 end
-                added = 0;
+                addedc = 0;
                 for cnt=1:strongc.Count
                     ct = strongc(cnt).Location;
-                    if ct(1) + compData.x > ol && ct(1) + compData.x < or
-                        if added == 0
-                            cptlist = strongc(cnt).Location;
-                            added = added + 1;
+                    if ct(1) + compData.x > ol && ct(1) + compData.x < orr
+                        if addedc == 0
+                            cptlist = [ct(1) + compData.x,ct(2) + compData.y];
+                            addedc = addedc + 1;
                         else
-                            cptlist = [cptlist;strongc(cnt).Location];
+                            cptlist = [cptlist;ct(1) + compData.x,ct(2) + compData.y];
                         end
                     end
                 end
-                %Now we have all points which should be in the same area:)
+            end
+            %Now we have all points which should be in the overlap area for each this and comp list:)
+            [tcount,~] = size(tptlist);
+            [ccount,~] = size(cptlist);
+            added = 0;
+            if addedc > 0 && addedt > 0
+                ptlist = zeros(1,2);
+                for newi=1:1:tcount
+                    for newj=1:1:ccount
+                        if tptlist(newi,:) == cptlist(newj,:)
+                            if added == 0
+                                ptlist = tptlist(newi,:);
+                                added = added + 1;
+                            else
+                                ptlist = [ptlist;tptlist(newi,:)];
+                            end
+                        end
+                    end
+                end
+%                 if i == 100 && j == 1
+%                     disp(' ');
+%                     disp(append('[',string(i),',',string(j),']'));
+%                     disp(append('[',string(iagg),',',string(jagg),']'));
+%                     disp(append('[',string(thisData.x),',',string(thisData.y),']'));
+%                     disp(append('[',string(compData.x),',',string(compData.y),']'));
+%                     disp(' ');
+%                 end
             end
         end
     end
