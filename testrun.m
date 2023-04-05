@@ -7,4 +7,4 @@ else%Linux/Mac
     SuperStitch("brokenImg/",10,100);
 end
 timerend = toc(timerstart);
-disp(append('Total Time: ',string(timerend),' (s)'));
+disp(append('Total Time: ',string(round(timerend/60)),' (m)',string(mod(timerend,60)),' (s)'));

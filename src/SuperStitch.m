@@ -12,19 +12,16 @@ if ispc()%if Windows
 else%Linux/Mac
     s = append(pwd,'/input/',inputPath);
 end
-timgPath = natsortfiles(dir(fullfile(s,'*.png')));
+timgPath = dir(fullfile(s,'*.png'));
 
 %Setup needed
 count = 1;
 imgstruct = struct('image',zeros(1,1,1),'surf',SURFPoints,'x',0,'y',0,'added',false);
-data = repmat(imgstruct,M,N);
+data = repmat(imgstruct,N,M);
 tw = 0;%total width 
 th = 0;%total heigth
-
-%Next load/Sort files for order, ie create a list of pictures which are sorted along
-%the X and then the Y
-for j=1:1:N
-    for i=1:1:M
+for i=1:1:N
+    for j=1:1:M
         %Load in image and assign x & y values
         cimg = imread(append(s,timgPath(count,:).name));
         x = split(timgPath(count,:).name,'-');
@@ -37,7 +34,7 @@ for j=1:1:N
         data(i,j).y = y(1);
         temp = detectSURFFeatures(rgb2gray(cimg));
         data(i,j).surf = temp;
-        if i == M && j == N
+        if i == N && j == M
             %Gets width and height of total image size with overlap
             [h,w,~] = size(cimg);
             tw = data(i,j).x + w;
@@ -46,7 +43,6 @@ for j=1:1:N
         count = count + 1;
     end
 end
-
 finalImg = zeros(th,tw,3);%Final image is our output congolermate with out pixel size
 %Time to load & preprocess data
 tEnd = toc(tStart);
@@ -56,21 +52,32 @@ disp(append('Time for Setup: ',string(tEnd),' (s)'));
 %Next we start the stitching method, What we do on this layer is utalize
 %the snake pattern for best stitching...(maybe? we will see)
 tStart = tic;
-for i=1:1:M
+for i=1:1:N
     %snake
+    
     if mod(i,2) ~= 0
-        for j=1:1:N
+        for j=1:1:M
             
             %The inside of both sides are realtively the same, so we will pass everything
             %to a new functions
             finalImg = LocalStitch(data,i,j,N,M,finalImg);
         end
     else
-        for j=N:-1:1
+        for j=M:-1:1
+            
             finalImg = LocalStitch(data,i,j,N,M,finalImg);
         end
     end
 end
+%Finally we will save out output image :)
+%Formatting for different OS 
+outputName = 'test.png';
+if ispc()%if Windows
+    s = append(pwd,'\output\testout\',outputName);
+else%Linux/Mac
+    s = append(pwd,'/output/testout\',outputName);
+end
+imwrite(finalImg, s);
 tEnd = toc(tStart);
-disp(append('Time for Stitch: ',string(tEnd),' (s)'));
+disp(append('Time for Stitch: ',string(round(tEnd/60)),' (m)',string(mod(tEnd,60)),' (s)'));
 end

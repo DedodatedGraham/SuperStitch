@@ -119,18 +119,60 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                                 added = added + 1;
                             else
                                 ptlist = [ptlist;tptlist(newi,:)];
+                                added = added + 1;
                             end
                         end
                     end
                 end
-%                 if i == 100 && j == 1
-%                     disp(' ');
-%                     disp(append('[',string(i),',',string(j),']'));
-%                     disp(append('[',string(iagg),',',string(jagg),']'));
-%                     disp(append('[',string(thisData.x),',',string(thisData.y),']'));
-%                     disp(append('[',string(compData.x),',',string(compData.y),']'));
-%                     disp(' ');
-%                 end
+                %Now we stitch if there is a match of points
+                if ~compData.added
+                    if iagg ~= 0
+                        %disp('iagg');
+                        if iagg == 1
+                            ys = thisData.y + th;
+                            ye = compData.y + ch;
+                        else
+                            ys = compData.y;
+                            ye = thisData.y;
+                        end
+                        newImg(ys:ye-1,compData.x:compData.x+cw-1,:) = compData.image(1:ye-ys,:,:); 
+                    else
+                        %disp('jagg');
+                        if jagg == 1
+                            xs = thisData.x + tw;
+                            xe = compData.x + cw;
+                        else
+                            xs = compData.x;
+                            xe = thisData.x;
+                        end
+                        newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compData.image(:,1:xe-xs,:); 
+                    end
+                    data(j+jagg,i+iagg).added = true;
+                end
+                % if false && ptlist(1,1) ~= 0 
+                %     disp(' ');
+                %     disp(append('[',string(i),',',string(j),']'));
+                %     disp(append('[',string(iagg),',',string(jagg),']'));
+                %     disp(append('this [',string(thisData.x),',',string(thisData.y),'] [',string(thisData.x + tw),',',string(thisData.y+th),']'));
+                %     disp(append('comp [',string(compData.x),',',string(compData.y),'] [',string(compData.x + cw),',',string(compData.y+ch),']'));
+                %     if iagg ~= 0
+                %         disp(append('Overlapping Region [',string(thisData.x),',',string(ou),'] [',string(thisData.x + tw),',',string(od),']'));
+                %     else
+                %         disp(append('Overlapping Region [',string(ol),',',string(thisData.y),'] [',string(orr),',',string(thisData.y + th),']'));
+                %     end
+                %     for qcnt=1:added
+                %         disp(append(string(qcnt),' point is [',string(ptlist(qcnt,1)),',',string(ptlist(qcnt,2)),']'));
+                %     end
+                %     disp(' ');
+                % end
+            % else
+            %     disp(' ');
+            %     disp(append('[',string(i),',',string(j),']'));
+            %     disp(append('[',string(iagg),',',string(jagg),']'));
+            %     disp(append('this [',string(thisData.x),',',string(thisData.y),'] [',string(thisData.x + tw),',',string(thisData.y+th),']'));
+            %     disp(append('comp [',string(compData.x),',',string(compData.y),'] [',string(compData.x + cw),',',string(compData.y+ch),']'));
+            %     disp('error no points to stitch :(((');
+            %     disp(' ');
             end
         end
     end

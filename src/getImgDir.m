@@ -12,7 +12,7 @@ function [go,outData,iagg,jagg] = getImgDir(data,i,j,N,M,pos)
             go = false;
         end
         iagg = -1;
-    elseif pos == 2 && i ~= M 
+    elseif pos == 2 && i ~= N 
         if data(i + 1,j).added ~= true
             outData = data(i + 1,j);
         else
@@ -26,7 +26,7 @@ function [go,outData,iagg,jagg] = getImgDir(data,i,j,N,M,pos)
             go = false;
         end
         jagg = -1;
-    elseif pos == 4 && j ~= N 
+    elseif pos == 4 && j ~= M 
         if data(i,j + 1).added ~= true
             outData = data(i,j + 1);
         else
