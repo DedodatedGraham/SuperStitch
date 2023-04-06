@@ -129,6 +129,17 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                     if iagg ~= 0
                         %disp('iagg');
                         if iagg == 1
+                            xs = thisData.x + tw;
+                            xe = compData.x + cw;
+                        else
+                            xs = compData.x;
+                            xe = thisData.x;
+                        end
+
+                        newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compData.image(:,1:xe-xs,:); 
+                    else
+                        %disp('jagg');
+                        if jagg == 1
                             ys = thisData.y + th;
                             ye = compData.y + ch;
                         else
@@ -136,16 +147,6 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                             ye = thisData.y;
                         end
                         newImg(ys:ye-1,compData.x:compData.x+cw-1,:) = compData.image(1:ye-ys,:,:); 
-                    else
-                        %disp('jagg');
-                        if jagg == 1
-                            xs = thisData.x + tw;
-                            xe = compData.x + cw;
-                        else
-                            xs = compData.x;
-                            xe = thisData.x;
-                        end
-                        newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compData.image(:,1:xe-xs,:); 
                     end
                     data(j+jagg,i+iagg).added = true;
                 end
