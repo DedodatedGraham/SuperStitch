@@ -12,7 +12,7 @@ if ispc()%if Windows
 else%Linux/Mac
     s = append(pwd,'/input/',inputPath);
 end
-timgPath = dir(fullfile(s,'*.png'));
+timgPath = natsortfiles(dir(fullfile(s,'*.png')));
 
 %Setup needed
 count = 1;
@@ -20,14 +20,18 @@ imgstruct = struct('image',zeros(1,1,1),'surf',SURFPoints,'x',0,'y',0,'added',fa
 data = repmat(imgstruct,M,N);
 tw = 0;%total width 
 th = 0;%total heigth
-for i=1:1:M
-    for j=1:1:N
+for j=1:1:N
+    for i=1:1:M
+        %disp(append('Creating pic @ ',string(i),',',string(j)));
         %Load in image and assign x & y values
         cimg = imread(append(s,timgPath(count,:).name));
+        %disp(timgPath(count,:).name);
         x = split(timgPath(count,:).name,'-');
         y = split(x(2),'.');
         x = str2double(x(1));
         y = str2double(y(1));
+        %disp(append('x,y= ',string(x(1)),',',string(y(1))));
+
         %Put data into a structure to hold 
         data(i,j).image = cimg;
         data(i,j).x = x(1);
@@ -43,8 +47,6 @@ for i=1:1:M
         count = count + 1;
     end
 end
-th
-tw
 finalImg = zeros(th,tw,3);%Final image is our output congolermate with out pixel size
 %Time to load & preprocess data
 tEnd = toc(tStart);
@@ -54,18 +56,19 @@ disp(append('Time for Setup: ',string(tEnd),' (s)'));
 %Next we start the stitching method, What we do on this layer is utalize
 %the snake pattern for best stitching...(maybe? we will see)
 tStart = tic;
-for j=1:1:M
+for i=1:1:M
     %snake
     
-    if mod(j,2) ~= 0
-        for i=1:1:N
+    if mod(i,2) ~= 0
+        for j=1:1:N
             %The inside of both sides are realtively the same, so we will pass everything
             %to a new functions
             disp(append('[',string(i),',',string(j),']'));
             finalImg = LocalStitch(data,i,j,N,M,finalImg);
+            %imshow(finalImg);
         end
     else
-        for i=N:-1:1
+        for j=N:-1:1
             disp(append('[',string(i),',',string(j),']'));
             finalImg = LocalStitch(data,i,j,N,M,finalImg);
         end
@@ -77,7 +80,7 @@ outputName = 'test.png';
 if ispc()%if Windows
     s = append(pwd,'\output\testout\',outputName);
 else%Linux/Mac
-    s = append(pwd,'/output/testout\',outputName);
+    s = append(pwd,'/output/testout/',outputName);
 end
 imwrite(finalImg, s);
 tEnd = toc(tStart);

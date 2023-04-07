@@ -14,7 +14,7 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
         data(i,j).added = true;
     end
 %% stitch each neighbor 
-    %first we go to each direction, in order of reach %[up,down,right,left]
+    %first we go to each direction, in order of reach %[up,down,left,right]
     thisData = data(i,j);
     for pos=1:4
         %Get our direcitonal stitching data
@@ -127,26 +127,34 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                 %Now we stitch if there is a match of points
                 if ~compData.added
                     if iagg ~= 0
-                        %disp('iagg');
                         if iagg == 1
-                            xs = thisData.x + tw;
-                            xe = compData.x + cw;
-                        else
-                            xs = compData.x;
-                            xe = thisData.x;
-                        end
-
-                        newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compData.image(:,1:xe-xs,:); 
-                    else
-                        %disp('jagg');
-                        if jagg == 1
+                            %down
                             ys = thisData.y + th;
                             ye = compData.y + ch;
+                            compapp = compData.image(thisData.y + th - compData.y:ch-1,:,:);
+                            newImg(ys:ye-1,compData.x:compData.x+cw-1,:) = compapp; 
+                            if newImg(ys:ye-1,compData.x:compData.x+cw-1,:) ~= compapp 
+                                disp('nah');
+                            end
+                            disp('');
                         else
+                            %up
                             ys = compData.y;
                             ye = thisData.y;
+                            newImg(ys:ye-1,compData.x:compData.x+cw-1,:) = compData.image(1:ye-ys,:,:); 
                         end
-                        newImg(ys:ye-1,compData.x:compData.x+cw-1,:) = compData.image(1:ye-ys,:,:); 
+                    else
+                        if jagg == 1
+                            %right
+                            xs = thisData.x + tw;
+                            xe = compData.x + cw;
+                            newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compData.image(:,thisData.x + tw - compData.x:cw-1,:);
+                        else
+                            %left
+                            xs = compData.x;
+                            xe = thisData.x;
+                            newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compData.image(:,1:xe-xs,:);
+                        end
                     end
                     data(j+jagg,i+iagg).added = true;
                 end
