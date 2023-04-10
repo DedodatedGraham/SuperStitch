@@ -1,5 +1,4 @@
-function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
-%disp(append('current=[',string(i),',',string(j),']'));
+function [newImg,newData] = LocalStitch(data,i,j,N,M,lastImg)
 %% direction and image setup
     strongcount = 20;
     %Here we intake our data and stitch together surounding data
@@ -13,6 +12,7 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
         newImg(ty:ty+th-1,tx:tx+tw-1,:) = data(i,j).image;
         data(i,j).added = true;
     end
+
 %% stitch each neighbor 
     %first we go to each direction, in order of reach %[up,down,left,right]
     thisData = data(i,j);
@@ -41,30 +41,24 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                     %disp(append('AbsLeftBound=',string(ol),' AbsRightBound=',string(orr)));
                 end
                 %Next we line up the overlapping regions points
-                tptlist = zeros(1,2);
-                cptlist = zeros(1,2);
-                addedt = 0;
+                tptlist = zeros(strongcount,2);
+                cptlist = zeros(strongcount,2);
+                addedt = 1;
                 for cnt=1:strongt.Count
                     st = strongt(cnt).Location;
                     if st(2) + thisData.y > ou && st(2) + thisData.y < od
-                        if addedt == 0
-                            tptlist = [st(1) + thisData.x,st(2) + thisData.y];
-                            addedt = addedt + 1;
-                        else
-                            tptlist = [tptlist;st(1) + thisData.x,st(2) + thisData.y];
-                        end
+                        tptlist(addedt,1) = st(1) + thisData.x;
+                        tptlist(addedt,2) = st(2) + thisData.y;
+                        addedt = addedt + 1;
                     end
                 end
-                addedc = 0;
+                addedc = 1;
                 for cnt=1:strongc.Count
                     ct = strongc(cnt).Location;
                     if ct(2) + compData.y > ou && ct(2) + compData.y < od
-                        if addedc == 0
-                            cptlist = [ct(1) + compData.x,ct(2) + compData.y];
-                            addedc = addedc + 1;
-                        else
-                            cptlist = [cptlist;ct(1) + compData.x,ct(2) + compData.y];
-                        end
+                        cptlist(addedc,1) = ct(1) + compData.x;
+                        cptlist(addedc,2) = ct(2) + compData.y;
+                        addedc = addedc + 1;
                     end
                 end
             elseif jagg ~= 0
@@ -78,54 +72,79 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                     orr = thisData.x + tw;
                 end
                 %Next we line up the overlapping regions points
-                tptlist = zeros(1,2);
-                cptlist = zeros(1,2);
-                addedt = 0;
+                tptlist = zeros(strongcount,2);
+                cptlist = zeros(strongcount,2);
+                addedt = 1;
                 for cnt=1:strongt.Count
                     st = strongt(cnt).Location;
                     if st(1) + thisData.x > ol && st(1) + thisData.x < orr
-                        if addedt == 0
-                            tptlist = [st(1) + thisData.x,st(2) + thisData.y];
-                            addedt = addedt + 1;
-                        else
-                            tptlist = [tptlist;st(1) + thisData.x,st(2) + thisData.y];
-                        end
+                        tptlist(addedt,1) = st(1) + thisData.x;
+                        tptlist(addedt,2) = st(2) + thisData.y;
+                        addedt = addedt + 1;
                     end
                 end
-                addedc = 0;
+                addedc = 1;
                 for cnt=1:strongc.Count
                     ct = strongc(cnt).Location;
                     if ct(1) + compData.x > ol && ct(1) + compData.x < orr
-                        if addedc == 0
-                            cptlist = [ct(1) + compData.x,ct(2) + compData.y];
-                            addedc = addedc + 1;
-                        else
-                            cptlist = [cptlist;ct(1) + compData.x,ct(2) + compData.y];
-                        end
+                        cptlist(addedc,1) = ct(1) + compData.x;
+                        cptlist(addedc,2) = ct(2) + compData.y;
+                        addedc = addedc + 1;
                     end
                 end
             end
             %Now we have all points which should be in the overlap area for each this and comp list:)
             [tcount,~] = size(tptlist);
             [ccount,~] = size(cptlist);
-            added = 0;
-            if addedc > 0 && addedt > 0
-                ptlist = zeros(1,2);
+            added = 1;
+            if addedc > 1 && addedt > 1
+                ptlist = zeros(strongcount,2);
                 for newi=1:1:tcount
                     for newj=1:1:ccount
                         if tptlist(newi,:) == cptlist(newj,:)
-                            if added == 0
-                                ptlist = tptlist(newi,:);
-                                added = added + 1;
-                            else
-                                ptlist = [ptlist;tptlist(newi,:)];
-                                added = added + 1;
-                            end
+                            ptlist(added,1) = tptlist(newi,1);
+                            ptlist(added,2) = tptlist(newi,2);
+                            added = added + 1;
                         end
                     end
                 end
                 %Now we stitch if there is a match of points
-                if ~compData.added
+                %If we are stitching our current data
+                if thisData.added ~= true
+                    if iagg ~= 0
+                        if iagg == 1
+                            %down
+                            ys = thisData.y;
+                            ye = compData.y;
+                            thisapp = thisData.image(1:ye-ys,:,:);
+                            newImg(ys:ye-1,thisData.x:thisData.x+tw - 1,:) = thisapp; 
+                        else
+                            %up
+                            ys = compData.y + ch;
+                            ye = thisData.y + th;
+                            thisapp = thisData.image(compData.y + ch - thisData.y:th - 1,:,:);
+                            newImg(ys:ye-1,thisData.x:thisData.x+tw - 1,:) = thisapp; 
+                        end
+                    else
+                        if jagg == 1
+                            %right
+                            xs = thisData.x;
+                            xe = compData.x;
+                            thisapp = thisData.image(:,1:xe-xs,:);
+                            newImg(thisData.y:thisData.y+th-1,xs:xe-1,:) = thisapp; 
+                        else
+                            %left
+                            xs = compData.x + cw;
+                            xe = thisData.x + tw;
+                            thisapp = thisData.image(:,compData.x + cw - thisData.x:tw - 1,:);
+                            newImg(thisData.y:thisData.y+th-1,xs:xe-1,:) = thisapp; 
+                        end
+                    end
+                    data(i,j).added = true;
+                    thisData.added = true;
+                end
+                %if we are stitching our comp data
+                if compData.added ~= true
                     if iagg ~= 0
                         if iagg == 1
                             %down
@@ -133,56 +152,33 @@ function [newImg] = LocalStitch(data,i,j,N,M,lastImg)
                             ye = compData.y + ch;
                             compapp = compData.image(thisData.y + th - compData.y:ch-1,:,:);
                             newImg(ys:ye-1,compData.x:compData.x+cw-1,:) = compapp; 
-                            if newImg(ys:ye-1,compData.x:compData.x+cw-1,:) ~= compapp 
-                                disp('nah');
-                            end
-                            disp('');
                         else
                             %up
                             ys = compData.y;
                             ye = thisData.y;
-                            newImg(ys:ye-1,compData.x:compData.x+cw-1,:) = compData.image(1:ye-ys,:,:); 
+                            compapp = compData.image(1:ye-ys,:,:); 
+                            newImg(ys:ye-1,compData.x:compData.x+cw-1,:) = compapp;
                         end
                     else
                         if jagg == 1
                             %right
                             xs = thisData.x + tw;
                             xe = compData.x + cw;
-                            newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compData.image(:,thisData.x + tw - compData.x:cw-1,:);
+                            compapp = compData.image(:,thisData.x + tw - compData.x:cw-1,:);
+                            newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compapp;
                         else
                             %left
                             xs = compData.x;
                             xe = thisData.x;
-                            newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compData.image(:,1:xe-xs,:);
+                            compapp = compData.image(:,1:xe-xs,:);
+                            newImg(compData.y:compData.y+ch-1,xs:xe-1,:) = compapp;
                         end
                     end
-                    data(j+jagg,i+iagg).added = true;
+                    data(i+iagg,j+jagg).added = true;
+                    compData.added = true;
                 end
-                % if false && ptlist(1,1) ~= 0 
-                %     disp(' ');
-                %     disp(append('[',string(i),',',string(j),']'));
-                %     disp(append('[',string(iagg),',',string(jagg),']'));
-                %     disp(append('this [',string(thisData.x),',',string(thisData.y),'] [',string(thisData.x + tw),',',string(thisData.y+th),']'));
-                %     disp(append('comp [',string(compData.x),',',string(compData.y),'] [',string(compData.x + cw),',',string(compData.y+ch),']'));
-                %     if iagg ~= 0
-                %         disp(append('Overlapping Region [',string(thisData.x),',',string(ou),'] [',string(thisData.x + tw),',',string(od),']'));
-                %     else
-                %         disp(append('Overlapping Region [',string(ol),',',string(thisData.y),'] [',string(orr),',',string(thisData.y + th),']'));
-                %     end
-                %     for qcnt=1:added
-                %         disp(append(string(qcnt),' point is [',string(ptlist(qcnt,1)),',',string(ptlist(qcnt,2)),']'));
-                %     end
-                %     disp(' ');
-                % end
-            % else
-            %     disp(' ');
-            %     disp(append('[',string(i),',',string(j),']'));
-            %     disp(append('[',string(iagg),',',string(jagg),']'));
-            %     disp(append('this [',string(thisData.x),',',string(thisData.y),'] [',string(thisData.x + tw),',',string(thisData.y+th),']'));
-            %     disp(append('comp [',string(compData.x),',',string(compData.y),'] [',string(compData.x + cw),',',string(compData.y+ch),']'));
-            %     disp('error no points to stitch :(((');
-            %     disp(' ');
             end
         end
     end
+    newData = data;
 end

@@ -7,7 +7,7 @@ function [go,outData,iagg,jagg] = getImgDir(data,i,j,N,M,pos)
     jagg = 0;
     if pos == 1 && i ~= 1 
         %up
-        if data(i - 1,j).added ~= true
+        if data(i - 1,j).added == false || (data(i - 1,j).added == true && data(i,j).added == false)
             outData = data(i - 1,j);
         else
             go = false;
@@ -15,7 +15,7 @@ function [go,outData,iagg,jagg] = getImgDir(data,i,j,N,M,pos)
         iagg = -1;
     elseif pos == 2 && i ~= M 
         %down
-        if data(i + 1,j).added ~= true
+        if data(i + 1,j).added == false || (data(i + 1,j).added == true && data(i,j).added == false)
             outData = data(i + 1,j);
         else
             go = false;
@@ -23,7 +23,7 @@ function [go,outData,iagg,jagg] = getImgDir(data,i,j,N,M,pos)
         iagg = 1;
     elseif pos == 3 && j ~= 1 
         %left
-        if data(i,j - 1).added ~= true
+        if data(i,j - 1).added ~= true || (data(i,j - 1).added == true && data(i,j).added == false)
             outData = data(i,j - 1);
         else
             go = false;
@@ -31,7 +31,7 @@ function [go,outData,iagg,jagg] = getImgDir(data,i,j,N,M,pos)
         jagg = -1;
     elseif pos == 4 && j ~= N 
         %right
-        if data(i,j + 1).added ~= true
+        if data(i,j + 1).added ~= true || (data(i,j + 1).added == true && data(i,j).added == false)
             outData = data(i,j + 1);
         else
             go = false;

@@ -16,7 +16,7 @@ timgPath = natsortfiles(dir(fullfile(s,'*.png')));
 
 %Setup needed
 count = 1;
-imgstruct = struct('image',zeros(1,1,1),'surf',SURFPoints,'x',0,'y',0,'added',false);
+imgstruct = struct('image',zeros(1,1,1,'uint8'),'surf',SURFPoints,'x',0,'y',0,'added',false);
 data = repmat(imgstruct,M,N);
 tw = 0;%total width 
 th = 0;%total heigth
@@ -47,7 +47,7 @@ for j=1:1:N
         count = count + 1;
     end
 end
-finalImg = zeros(th,tw,3);%Final image is our output congolermate with out pixel size
+finalImg = zeros(th,tw,3,'uint8');%Final image is our output congolermate with out pixel size
 %Time to load & preprocess data
 tEnd = toc(tStart);
 disp(append('Time for Setup: ',string(tEnd),' (s)'));
@@ -63,14 +63,24 @@ for i=1:1:M
         for j=1:1:N
             %The inside of both sides are realtively the same, so we will pass everything
             %to a new functions
-            disp(append('[',string(i),',',string(j),']'));
-            finalImg = LocalStitch(data,i,j,N,M,finalImg);
+            [finalImg,data] = LocalStitch(data,i,j,N,M,finalImg);
             %imshow(finalImg);
         end
     else
         for j=N:-1:1
-            disp(append('[',string(i),',',string(j),']'));
-            finalImg = LocalStitch(data,i,j,N,M,finalImg);
+            [finalImg,data] = LocalStitch(data,i,j,N,M,finalImg);
+        end
+    end
+end
+%Lastly we go through, find unadded points, and then try and recover the
+%stitching
+for i=1:1:M
+    for j=1:1:N
+        if data(i,j).added == false
+            red = zeros(size(data(i,j).image),'uint8');
+            red(:,:,1) = 255;
+            [sry,srx,~] = size(red);
+            finalImg(data(i,j).y:data(i,j).y+sry-1,data(i,j).x:data(i,j).x+srx-1,:) = red;
         end
     end
 end
@@ -84,5 +94,5 @@ else%Linux/Mac
 end
 imwrite(finalImg, s);
 tEnd = toc(tStart);
-disp(append('Time for Stitch: ',string(round(tEnd/60)),' (m)',string(mod(tEnd,60)),' (s)'));
+disp(append('Time for Stitch: ',string(floor(tEnd/60)),' (m)',string(mod(tEnd,60)),' (s)'));
 end
