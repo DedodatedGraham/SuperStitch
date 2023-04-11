@@ -109,8 +109,6 @@ end
 for i=1:1:M
     for j=1:1:N
         if data(i,j).added == false
-            besti = 0;%These will hold our optimal shift
-            bestj = 0;
             for pos=1:4
                 %we use img dir again for speed and safety
                 [go,compData,iagg,jagg] = getImgDir(data,i,j,N,M,pos);
@@ -119,7 +117,9 @@ for i=1:1:M
                     %safe to procede
                     %Here we will compare compData & thisData, and apply a
                     %shift for the best results
-                    [besti,bestj] = redshift();
+                    [besti,bestj] = redshift(thisData,compData,i,j,iagg,jagg,5);
+                    %Applies the best shift we can 
+                    [finalImg] = redadd(finalImg,thisData,besti,bestj,i,j,N,M);
                 end
             end
         end
