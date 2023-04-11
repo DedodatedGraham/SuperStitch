@@ -1,11 +1,11 @@
 function [newImg,newData] = LocalStitch(data,i,j,N,M,lastImg)
 %% direction and image setup
-    strongcount = 20;
+    strongcount = 100;
     %Here we intake our data and stitch together surounding data
     newImg = lastImg;
     %First if at starting pos, we add our current pic into the final image
     %before trying to add new ones
-    if i == 1 && j == 1
+    if i == 1 && j == 1 && data(i,j).added == false
         tx = data(i,j).x;
         ty = data(i,j).y;
         [th,tw,~] = size(data(i,j).image);
@@ -31,14 +31,10 @@ function [newImg,newData] = LocalStitch(data,i,j,N,M,lastImg)
                     %up
                     ou = thisData.y;
                     od = compData.y + ch;
-                    %disp(append('current=[',string(i),',',string(j),'] reaching  x=',string(iagg)));
-                    %disp(append('AbsLeftBound=',string(ol),' AbsRightBound=',string(orr)));
                 else
                     %down
                     ou = compData.y;
                     od = thisData.y + th;
-                    %disp(append('current=[',string(i),',',string(j),'] reaching  x=',string(iagg)));
-                    %disp(append('AbsLeftBound=',string(ol),' AbsRightBound=',string(orr)));
                 end
                 %Next we line up the overlapping regions points
                 tptlist = zeros(strongcount,2);
