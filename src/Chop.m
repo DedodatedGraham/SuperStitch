@@ -4,7 +4,7 @@ function [] = Chop(inputPath,N,M,O)
 
 %size of pictures in pixels will be determined based on input size px,py
 
-imgPath = append(pwd,'\input\',inputPath);
+imgPath = append(pwd,'/input/',inputPath);
 mainImg = imread(imgPath);
 pos = struct("x",0,"y",0,"w",0,"h",0);
 imgpos(M,N) = pos; 
@@ -50,7 +50,7 @@ for i=1:1:M
         disp(append('w=',string(imgpos(i,j).w)));
         disp(append('h=',string(imgpos(i,j).h)));
         temp = mainImg(imgpos(i,j).y : imgpos(i,j).y + imgpos(i,j).h,imgpos(i,j).x : imgpos(i,j).x + imgpos(i,j).w,:);
-        slicepath = append(pwd,'\input\brokenImg\',num2str(imgpos(i,j).x),'-',num2str(imgpos(i,j).y),'.png');
+        slicepath = append(pwd,'/input/brokenImg/',num2str(imgpos(i,j).x),'-',num2str(imgpos(i,j).y),'.png');
         imwrite(temp,slicepath);
         jp = jp + nx;
     end
