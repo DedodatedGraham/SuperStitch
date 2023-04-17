@@ -2,13 +2,15 @@
 #include "SpinGenApi/SpinnakerGenApi.h"
 #include <iostream>
 #include <sstream>
+#include <ctime>
+#include <chrono>
 
 using namespace Spinnaker;
 using namespace Spinnaker::GenApi;
 using namespace Spinnaker::GenICam;
 using namespace std;
 
-int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice)
+int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,int numphoto)
 {
     int result = 0;
 
@@ -54,14 +56,15 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice)
 
         // Set default image processor color processing method 
         processor.SetColorProcessing(SPINNAKER_COLOR_PROCESSING_ALGORITHM_HQ_LINEAR);
+        auto start = std::chrono::high_resolution_clock::now();
 
-        for (unsigned int imageCnt = 0; imageCnt < k_numImages; imageCnt++)
+        for (unsigned int imageCnt = 0; imageCnt < numphoto; imageCnt++)
         {
             try
             {
                 // Retrieve next received image
                 ImagePtr pResultImage = pCam->GetNextImage(1000);
-
+                auto elapsed = std::chrono::high_resolution_clock::now() - start;
                 // Ensure image completion
                 if (pResultImage->IsIncomplete())
                 {
@@ -80,46 +83,20 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice)
 
                     cout << "Grabbed image " << imageCnt << ", width = " << width << ", height = " << height << endl;
 
-                    //
-                    // Convert image to mono 8
-                    //
-                    // *** NOTES ***
-                    // Images can be converted between pixel formats by using
-                    // the appropriate enumeration value. Unlike the original
-                    // image, the converted one does not need to be released as
-                    // it does not affect the camera buffer.
-                    //
-                    // When converting images, color processing algorithm is an
-                    // optional parameter.
-                    //
                     ImagePtr convertedImage = processor.Convert(pResultImage, PixelFormat_Mono8);
 
-                    // Create a unique filename
+                    //make file 
                     ostringstream filename;
+                    long long microseconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
 
-                    filename << "SuperStitch-" << ;
+                    filename << "SuperStitch-" << microseconds;
                     filename << imageCnt << ".jpg";
 
-                    //
                     // Save image
-                    //
-                    // *** NOTES ***
-                    // The standard practice of the examples is to use device
-                    // serial numbers to keep images of one device from
-                    // overwriting those of another.
-                    //
                     convertedImage->Save(filename.str().c_str());
 
                     cout << "Image saved at " << filename.str() << endl;
                 }
-
-                //
-                // Release image
-                //
-                // *** NOTES ***
-                // Images retrieved directly from the camera (i.e. non-converted
-                // images) need to be released in order to keep from filling the
-                // buffer.
 
                 pResultImage->Release();
 
@@ -131,14 +108,6 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice)
                 result = -1;
             }
         }
-
-        //
-        // End acquisition
-        //
-        // *** NOTES ***
-        // Ending acquisition appropriately helps ensure that devices clean up
-        // properly and do not need to be power-cycled to maintain integrity.
-        //
 
         pCam->EndAcquisition();
     }
@@ -152,7 +121,7 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice)
 
 }
 
-int RunSingleCamera(CameraPtr pCam)
+int RunSingleCamera(CameraPtr pCam,int numphoto)
 {
     int result = 0;
     try
@@ -167,7 +136,7 @@ int RunSingleCamera(CameraPtr pCam)
         INodeMap& nodeMap = pCam->GetNodeMap();
 
         // Acquire images
-        result = result | AcquireImages(pCam, nodeMap, nodeMapTLDevice);
+        result = result | AcquireImages(pCam, nodeMap, nodeMapTLDevice,numphoto);
 
         // Deinitialize camera
         pCam->DeInit();
@@ -180,7 +149,7 @@ int RunSingleCamera(CameraPtr pCam)
 
     return result;
 }
-int main(){
+int main(int argc, char *argv[]){
     //ensure file permissions
     FILE* tempFile = fopen("test.txt", "w+");
     if (tempFile == nullptr){
@@ -189,7 +158,14 @@ int main(){
     fclose(tempFile);
     remove("test.txt");
 
-
+    //loadargs
+    int numphoto;
+    if(argc>0){
+        numphoto = atoi(argv[1]); 
+    }
+    else{
+        return -1;
+    }
     //Recieve communication
     SystemPtr system = System::GetInstance();
     CameraList camList = system->GetCameras();
@@ -200,7 +176,7 @@ int main(){
     if(numCameras > 0){
         CameraPtr pCam = nullptr;
         pCam = camList.GetByIndex(0);
-        result = result | RunSingleCamera(pCam);
+        result = result | RunSingleCamera(pCam,numphoto);
     }
     else{
         return -1;
