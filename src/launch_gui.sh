@@ -6,4 +6,4 @@ this_root=$1
 micro_controller=$2
 echo "Launching GUI"
 $micro_controller 'cd ~/var/lib/cloud9/stageTranslation;./rungui'
-xdg-open http://192.168.7.2:8085/machinevision.html
+open http://192.168.7.2:8085/machinevision.html
