@@ -1,3 +1,4 @@
+clear
 #Here we run our program, controlling the microcontroller, camera, and stitching and linking them all.
 #First setting up our path
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
