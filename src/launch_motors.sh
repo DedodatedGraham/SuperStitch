@@ -5,4 +5,4 @@ cd "$parent_path"
 this_root=$1
 micro_controller=$2
 echo "Launching Motors"
-sshpass -p machinevision ssh debian@192.168.7.2 -t 'source ~/.bashrc;cd /var/lib/cloud9/stageTranslation;./run_motors.sh'
+sshpass -p machinevision ssh debian@192.168.7.2 -t 'source ~/.bashrc; source ~/.profile; cd /var/lib/cloud9/stageTranslation;./run_motors.sh' &
