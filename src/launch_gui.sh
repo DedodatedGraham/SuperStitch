@@ -10,9 +10,11 @@ sshpass -p machinevision ssh debian@192.168.7.2 -t "source ~/.bashrc; source ~/.
 sleep 15
 unamestr=$(uname)
 if [[ "$unamestr" == 'Linux' ]]; then
-   platform='linux'
+    echo "Running Linux"
+    platform='linux'
     xdg-open http://192.168.7.2:8085/machinevision.html
 else
+    echo "Running Windows"
     platform='osx'
     open http://192.168.7.2:8085/machinevision.html
 fi
