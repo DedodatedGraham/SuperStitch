@@ -12,3 +12,4 @@ else
 fi
 echo 'Launching Camera'
 ./$CAMBINARY $NUMSLIDES
+./launch_matlab.sh
