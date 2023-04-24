@@ -3,7 +3,6 @@ function [besti,bestj] = redshift(thisData,compData,i,j,iagg,jagg,shiftmax)
     [ch,cw,~] = size(compData.image);
     besti = 0;
     bestj = 0;
-
     if iagg ~= 0
         if iagg == 1
             tou = compData.y - thisData.y;

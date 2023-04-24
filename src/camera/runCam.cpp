@@ -56,15 +56,15 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,i
 
         // Set default image processor color processing method 
         processor.SetColorProcessing(SPINNAKER_COLOR_PROCESSING_ALGORITHM_HQ_LINEAR);
-        auto start = std::chrono::high_resolution_clock::now();
+        //auto start = std::chrono::high_resolution_clock::now();
 
-        for (unsigned int imageCnt = 0; imageCnt < numphoto; imageCnt++)
+        for (int imageCnt = 0; imageCnt < numphoto; imageCnt++)
         {
             try
             {
                 // Retrieve next received image
                 ImagePtr pResultImage = pCam->GetNextImage(1000);
-                auto elapsed = std::chrono::high_resolution_clock::now() - start;
+                //auto elapsed = std::chrono::high_resolution_clock::now() - start;
                 // Ensure image completion
                 if (pResultImage->IsIncomplete())
                 {
@@ -87,9 +87,9 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,i
 
                     //make file 
                     ostringstream filename;
-                    long long microseconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
+                    //long long microseconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
 
-                    filename << "SuperStitch-" << microseconds;
+                    filename << "SuperStitch-";
                     filename << imageCnt << ".jpg";
 
                     // Save image
@@ -99,7 +99,6 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,i
                 }
 
                 pResultImage->Release();
-
                 cout << endl;
             }
             catch (Spinnaker::Exception& e)
@@ -131,11 +130,60 @@ int RunSingleCamera(CameraPtr pCam,int numphoto)
 
         // Initialize camera
         pCam->Init();
+        
 
         // Retrieve GenICam nodemap
         INodeMap& nodeMap = pCam->GetNodeMap();
+        //set Exposure 
+        CEnumerationPtr ptrExposureAuto = nodeMap.GetNode("ExposureAuto");
+        if (IsReadable(ptrExposureAuto) && IsWritable(ptrExposureAuto)){
+            CEnumEntryPtr ptrExposureAutoOn = ptrExposureAuto->GetEntryByName("Off");
+            if (IsReadable(ptrExposureAutoOn)){
+                ptrExposureAuto->SetIntValue(ptrExposureAutoOn->GetValue());
+                cout << "Automatic exposure enabled..." << ptrExposureAutoOn->GetValue() << endl;
+            }
+        }
+        else 
+        {
+            CEnumerationPtr ptrAutoBright = nodeMap.GetNode("autoBrightnessMode");
+            if (!IsReadable(ptrAutoBright) ||
+                !IsWritable(ptrAutoBright))
+            {
+                cout << "Unable to get or set exposure time. Aborting..." << endl << endl;
+                return -1;
+            }
+            cout << "Unable to disable automatic exposure. Expected for some models... " << endl;
+            cout << "Proceeding..." << endl;
+            result = 1;
+        }
+        
+        CFloatPtr ptrExposureTime = nodeMap.GetNode("ExposureTime");
+        const double exposureTimeMax = ptrExposureTime->GetMax();
+        double exposureTimeToSet = 1000.0;
 
-        // Acquire images
+        if (exposureTimeToSet > exposureTimeMax)
+        {
+            exposureTimeToSet = exposureTimeMax;
+        }
+
+        ptrExposureTime->SetValue(exposureTimeToSet);
+        //CEnumerationPtr ptrExposureAuto=nodeMap.GetNode("ExposureAuto");
+        //CEnumEntryPtr ptrExposureAutoCts=ptrExposureAuto->GetEntryByName("Continuous");
+        //ptrExposureAuto->SetIntValue(ptrExposureAutoCts->GetValue());
+        CEnumerationPtr ptrGainAuto=nodeMap.GetNode("GainAuto");
+        CEnumEntryPtr ptrGainAutoCts=ptrGainAuto->GetEntryByName("Continuous");
+        ptrGainAuto->SetIntValue(ptrGainAutoCts->GetValue());
+        //Set Metering Mode
+        CEnumerationPtr ptrMeteringMode=nodeMap.GetNode("AutoExposureMeteringMode");
+        CEnumEntryPtr ptrMeteringModePartial=ptrMeteringMode->GetEntryByName("Partial");
+        ptrMeteringMode->SetIntValue(ptrMeteringModePartial->GetValue());
+        //
+        //Goin/ExposureTime
+        //CEnumerationPtr exposurePriorityNode = nodeMap.GetNode("ExposurePriority");
+        //exposurePriorityNode->SetIntValue(1);
+        //CEnumerationPtr gainPriorityNode = nodeMap.GetNode("GainPriority");
+        //gainPriorityNode->SetIntValue(1);
+        //// Acquire images
         result = result | AcquireImages(pCam, nodeMap, nodeMapTLDevice,numphoto);
 
         // Deinitialize camera
@@ -149,7 +197,7 @@ int RunSingleCamera(CameraPtr pCam,int numphoto)
 
     return result;
 }
-int main(int argc, char *argv[]){
+int main(){
     //ensure file permissions
     FILE* tempFile = fopen("test.txt", "w+");
     if (tempFile == nullptr){
@@ -158,14 +206,7 @@ int main(int argc, char *argv[]){
     fclose(tempFile);
     remove("test.txt");
 
-    //loadargs
-    int numphoto;
-    if(argc>0){
-        numphoto = atoi(argv[1]); 
-    }
-    else{
-        return -1;
-    }
+    int numphoto = 1000;
     //Recieve communication
     SystemPtr system = System::GetInstance();
     CameraList camList = system->GetCameras();

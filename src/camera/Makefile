@@ -9,7 +9,7 @@ OPT_INC = ${PROJECT_ROOT}/common/make/common_spin.mk
 ################################################################################
 # Key paths and settings
 ################################################################################
-CFLAGS += -std=c++11
+CFLAGS += -std=c++11 -g
 ifeq ($(wildcard ${OPT_INC}),)
 CXX = g++ ${CFLAGS}
 ODIR  = .obj/build${D}

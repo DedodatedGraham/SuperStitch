@@ -12,43 +12,68 @@ if ispc()%if Windows
 else%Linux/Mac
     s = append(pwd,'/input/',inputPath);
 end
-timgPath = natsortfiles(dir(fullfile(s,'*.png')));
 
-%Setup needed
+%Count Sort Files
+%Puts x&y locations into propper arrangement allowing for variablility
+timgPath = natsortfiles(dir(fullfile(s,'*.png')));
+[long,~] = size(timgPath);
+trestdat = zeros(long,3,'double');
 count = 1;
-imgstruct = struct('image',zeros(1,1,1,'uint8'),'surf',SURFPoints,'x',0,'y',0,'added',false);
-data = repmat(imgstruct,M,N);
-tw = 0;%total width 
-th = 0;%total heigth
+imgpathhold = strings(long);
 for j=1:1:N
     for i=1:1:M
-        %disp(append('Creating pic @ ',string(i),',',string(j)));
-        %Load in image and assign x & y values
-        cimg = imread(append(s,timgPath(count,:).name));
-        %disp(timgPath(count,:).name);
         x = split(timgPath(count,:).name,'-');
         y = split(x(2),'.');
         x = str2double(x(1));
         y = str2double(y(1));
-        %disp(append('x,y= ',string(x(1)),',',string(y(1))));
+        trestdat(count,1) = x;
+        trestdat(count,2) = y;
+        trestdat(count,3) = count;
+        imgpathhold(count) = append(s,timgPath(count,:).name);
+        count = count + 1;
+    end
+end
+for j=1:1:N
+    stemp = sortrows(trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :),2);
+    trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :) = stemp; 
+end
 
+%Load needed data
+count = 1;
+imgstruct = struct('image',zeros(1,1,1,'uint8'),'surf',SURFPoints,'x',0,'y',0,'added',false);
+data = repmat(imgstruct,M,N);
+cw = 0;%total heigth
+ch = 0;%total heigth
+for j=1:1:N
+    for i=1:1:M
+        %Load in image and assign x & y values
+        %imgpath = append(s,string(trestdat(count,1)),'-',string(trestdat(count,2)),'.png');
+        %char(imgpathhold(trestdat(count,3),1))
+        cimg = imread(imgpathhold(trestdat(count,3),1));
         %Put data into a structure to hold 
         data(i,j).image = cimg;
-        data(i,j).x = x(1);
-        data(i,j).y = y(1);
+        data(i,j).x = trestdat(count,1);
+        data(i,j).y = trestdat(count,2);
         temp = detectSURFFeatures(rgb2gray(cimg),'MetricThreshold',100);
         data(i,j).surf = temp;
+        [h,w,~] = size(cimg);
         if i == M && j == N
-            %Gets width and height of total image size with overlap
-            [h,w,~] = size(cimg);
+            %Gets width and height of 'final' image size with overlap
             tw = data(i,j).x + w;
             th = data(i,j).y + h;
+        end
+        if i == M 
+            %Gets width and height of total image size with overlap
+            cw = cw + w;
+        end
+        if j == N
+            ch = ch + h;
         end
         count = count + 1;
     end
 end
-finalImg = zeros(th,tw,3,'uint8');%Final image is our output congolermate with out pixel size
-%Time to load & preprocess data
+finalImg = zeros(ch,cw,3,'uint8');%Final image is our output congolermate with out pixel size
+finalAdd = false(ch,cw);%Final image is our output congolermate with out pixel size
 tEnd = toc(tStart);
 disp(append('Time for Setup: ',string(tEnd),' (s)'));
 
@@ -63,7 +88,6 @@ while(notcase)
     ttstart = tic;
     for i=1:1:M
         %snake
-        
 %         if mod(i,2) ~= 0
 %             for j=1:1:N
 %                 %The inside of both sides are realtively the same, so we will pass everything
@@ -76,8 +100,9 @@ while(notcase)
 %                 [finalImg,data] = LocalStitch(data,i,j,N,M,finalImg);
 %             end
 %         end
+        %regular
         for j=1:1:N
-            [finalImg,data] = LocalStitch(data,i,j,N,M,finalImg);
+            [finalImg,data,finalAdd] = LocalStitch(data,i,j,N,M,finalImg,finalAdd);
         end
     end
     notcase = false;
@@ -87,8 +112,6 @@ while(notcase)
             if data(i,j).added == false
                 notcase = true;
                 countmiss = countmiss+1;
-                %j = N;
-                %i = M;
             end
         end
     end
@@ -106,25 +129,28 @@ end
 
 %Lastly we go through, find regions which missed for some reason
 %We should be able to brute force this one 
-for i=1:1:M
-    for j=1:1:N
-        if data(i,j).added == false
-            for pos=1:4
-                %we use img dir again for speed and safety
-                [go,compData,iagg,jagg] = getImgDir(data,i,j,N,M,pos);
-                if go
-                    thisData = data(i,j);
-                    %safe to procede
-                    %Here we will compare compData & thisData, and apply a
-                    %shift for the best results
-                    [besti,bestj] = redshift(thisData,compData,i,j,iagg,jagg,5);
-                    %Applies the best shift we can 
-                    [finalImg] = redadd(finalImg,thisData,besti,bestj,i,j,N,M);
-                end
-            end
-        end
-    end
-end
+%may or maynot be needed
+% for i=1:1:M
+%     for j=1:1:N
+%         if data(i,j).added == false
+%             [h,w,~] = size(data(i,j).image);
+%             finalImg(data(i,j).y : data(i,j).y + h,data(i,j).x : data(i,j).x + w,1) = 255;
+%             for pos=1:4
+%                 %we use img dir again for speed and safety
+%                 [go,compData,iagg,jagg] = getImgDir(data,i,j,N,M,pos);
+%                 if go
+%                     thisData = data(i,j);
+%                     %safe to procede
+%                     %Here we will compare compData & thisData, and apply a
+%                     %shift for the best results
+%                     [besti,bestj] = redshift(thisData,compData,i,j,iagg,jagg,5);
+%                     %Applies the best shift we can 
+%                     [finalImg] = redadd(finalImg,thisData,besti,bestj,i,j,N,M);
+%                 end
+%             end
+%         end
+%     end
+% end
 %Finally we will save out output image :)
 %Formatting for different OS 
 outputName = 'test.png';

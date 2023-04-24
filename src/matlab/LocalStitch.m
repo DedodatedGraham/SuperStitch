@@ -1,8 +1,9 @@
-function [newImg,newData] = LocalStitch(data,i,j,N,M,lastImg)
+function [newImg,newData,newAdd] = LocalStitch(data,i,j,N,M,lastImg,lastAdd)
 %% direction and image setup
     strongcount = 100;
     %Here we intake our data and stitch together surounding data
     newImg = lastImg;
+    newAdd = lastAdd;
     %First if at starting pos, we add our current pic into the final image
     %before trying to add new ones
     if i == 1 && j == 1 && data(i,j).added == false
@@ -10,9 +11,9 @@ function [newImg,newData] = LocalStitch(data,i,j,N,M,lastImg)
         ty = data(i,j).y;
         [th,tw,~] = size(data(i,j).image);
         newImg(ty:ty+th-1,tx:tx+tw-1,:) = data(i,j).image;
+        newAdd(ty:ty+th-1,tx:tx+tw-1) = true;
         data(i,j).added = true;
     end
-
 %% stitch each neighbor 
     %first we go to each direction, in order of reach %[up,down,left,right]
     thisData = data(i,j);
@@ -97,7 +98,7 @@ function [newImg,newData] = LocalStitch(data,i,j,N,M,lastImg)
                 ptlist = zeros(strongcount,2);
                 for newi=1:1:tcount
                     for newj=1:1:ccount
-                        if tptlist(newi,:) == cptlist(newj,:)
+                        if abs(tptlist(newi,1)-cptlist(newj,1)) < 10 && abs(tptlist(newi,2)-cptlist(newj,2)) < 10
                             ptlist(added,1) = tptlist(newi,1);
                             ptlist(added,2) = tptlist(newi,2);
                             added = added + 1;
@@ -106,7 +107,8 @@ function [newImg,newData] = LocalStitch(data,i,j,N,M,lastImg)
                 end
                 %Now we stitch if there is a match of points
                 %If we are stitching our current data
-                if thisData.added ~= true
+                %disp(append('We are :',string(thisData.added),string(compData.added),' num added=',string(added)));
+                if thisData.added ~= true && added > 4
                     if iagg ~= 0
                         if iagg == 1
                             %down
@@ -140,7 +142,7 @@ function [newImg,newData] = LocalStitch(data,i,j,N,M,lastImg)
                     thisData.added = true;
                 end
                 %if we are stitching our comp data
-                if compData.added ~= true
+                if compData.added ~= true && added > 4
                     if iagg ~= 0
                         if iagg == 1
                             %down
