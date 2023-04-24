@@ -4,7 +4,9 @@
 #include <sstream>
 #include <ctime>
 #include <chrono>
-
+#include <stdlib.h>
+#include <unistd.h>
+#include <thread>
 using namespace Spinnaker;
 using namespace Spinnaker::GenApi;
 using namespace Spinnaker::GenICam;
@@ -58,53 +60,58 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,i
         processor.SetColorProcessing(SPINNAKER_COLOR_PROCESSING_ALGORITHM_HQ_LINEAR);
         //auto start = std::chrono::high_resolution_clock::now();
 
-        for (int imageCnt = 0; imageCnt < numphoto; imageCnt++)
+        for (int imageCnt = 0; imageCnt < 20*numphoto; imageCnt++)
         {
-            try
-            {
-                // Retrieve next received image
-                ImagePtr pResultImage = pCam->GetNextImage(1000);
-                //auto elapsed = std::chrono::high_resolution_clock::now() - start;
-                // Ensure image completion
-                if (pResultImage->IsIncomplete())
+            if(imageCnt % 2 == 0){
+                try
                 {
-                    // Retrieve and print the image status description
-                    cout << "Image incomplete: " << Image::GetImageStatusDescription(pResultImage->GetImageStatus())
-                        << "..." << endl
-                        << endl;
+                    // Retrieve next received image
+                    ImagePtr pResultImage = pCam->GetNextImage(1000);
+                    //auto elapsed = std::chrono::high_resolution_clock::now() - start;
+                    // Ensure image completion
+                    if (pResultImage->IsIncomplete())
+                    {
+                        // Retrieve and print the image status description
+                        cout << "Image incomplete: " << Image::GetImageStatusDescription(pResultImage->GetImageStatus())
+                            << "..." << endl
+                            << endl;
+                    }
+                    else
+                    {
+                        // Print image information; height and width recorded in pixels
+
+                        const size_t width = pResultImage->GetWidth();
+
+                        const size_t height = pResultImage->GetHeight();
+
+                        cout << "Grabbed image " << imageCnt << ", width = " << width << ", height = " << height << endl;
+
+                        ImagePtr convertedImage = processor.Convert(pResultImage, PixelFormat_Mono8);
+
+                        //make file 
+                        ostringstream filename;
+                        //long long microseconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
+
+                        filename << "SuperStitch-";
+                        filename << imageCnt << ".jpg";
+
+                        // Save image
+                        convertedImage->Save(filename.str().c_str());
+
+                        cout << "Image saved at " << filename.str() << endl;
+                    }
+
+                    pResultImage->Release();
+                    cout << endl;
                 }
-                else
+                catch (Spinnaker::Exception& e)
                 {
-                    // Print image information; height and width recorded in pixels
-
-                    const size_t width = pResultImage->GetWidth();
-
-                    const size_t height = pResultImage->GetHeight();
-
-                    cout << "Grabbed image " << imageCnt << ", width = " << width << ", height = " << height << endl;
-
-                    ImagePtr convertedImage = processor.Convert(pResultImage, PixelFormat_Mono8);
-
-                    //make file 
-                    ostringstream filename;
-                    //long long microseconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
-
-                    filename << "SuperStitch-";
-                    filename << imageCnt << ".jpg";
-
-                    // Save image
-                    convertedImage->Save(filename.str().c_str());
-
-                    cout << "Image saved at " << filename.str() << endl;
+                    cout << "Error: " << e.what() << endl;
+                    result = -1;
                 }
-
-                pResultImage->Release();
-                cout << endl;
             }
-            catch (Spinnaker::Exception& e)
-            {
-                cout << "Error: " << e.what() << endl;
-                result = -1;
+            else{
+                std::this_thread::sleep_for(std::chrono::milliseconds(35));
             }
         }
 
@@ -206,7 +213,7 @@ int main(){
     fclose(tempFile);
     remove("test.txt");
 
-    int numphoto = 1000;
+    int numphoto = 10002;
     //Recieve communication
     SystemPtr system = System::GetInstance();
     CameraList camList = system->GetCameras();
