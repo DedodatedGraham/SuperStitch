@@ -12,6 +12,8 @@ using namespace Spinnaker::GenApi;
 using namespace Spinnaker::GenICam;
 using namespace std;
 
+#define PHOTO_PER_SLIDE 8500
+
 int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,int numphoto)
 {
     int result = 0;
@@ -204,7 +206,8 @@ int RunSingleCamera(CameraPtr pCam,int numphoto)
 
     return result;
 }
-int main(){
+
+int main(int argc, char *argv[]){
     //ensure file permissions
     FILE* tempFile = fopen("test.txt", "w+");
     if (tempFile == nullptr){
@@ -213,7 +216,11 @@ int main(){
     fclose(tempFile);
     remove("test.txt");
 
-    int numphoto = 10002;
+    int numphoto = PHOTO_PER_SLIDE
+    if(strcmp(argv[1], "2") {
+        numphoto = numphoto * 2;
+    }
+    
     //Recieve communication
     SystemPtr system = System::GetInstance();
     CameraList camList = system->GetCameras();
