@@ -5,7 +5,7 @@
 #include <ctime>
 #include <chrono>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <thread>
 using namespace Spinnaker;
 using namespace Spinnaker::GenApi;
