@@ -5,7 +5,10 @@
 #include <ctime>
 #include <chrono>
 #include <stdlib.h>
+<<<<<<< HEAD
 #include <time.h>
+=======
+>>>>>>> 0a743045146b2f6ce5eccafa6aca3111d75f9d09
 //#include <unistd.h>
 #include <thread>
 using namespace Spinnaker;
@@ -13,7 +16,11 @@ using namespace Spinnaker::GenApi;
 using namespace Spinnaker::GenICam;
 using namespace std;
 
+<<<<<<< HEAD
 #define BILLION 1000000000.0
+=======
+#define PHOTO_PER_SLIDE 8500
+>>>>>>> 0a743045146b2f6ce5eccafa6aca3111d75f9d09
 
 int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,int numphoto)
 {
@@ -211,7 +218,8 @@ int RunSingleCamera(CameraPtr pCam,int numphoto)
 
     return result;
 }
-int main(){
+
+int main(int argc, char *argv[]){
     //ensure file permissions
     FILE* tempFile = fopen("test.txt", "w+");
     if (tempFile == nullptr){
@@ -220,7 +228,11 @@ int main(){
     fclose(tempFile);
     remove("test.txt");
 
-    int numphoto = 10002;
+    int numphoto = PHOTO_PER_SLIDE
+    if(strcmp(argv[1], "2") {
+        numphoto = numphoto * 2;
+    }
+    
     //Recieve communication
     SystemPtr system = System::GetInstance();
     CameraList camList = system->GetCameras();
