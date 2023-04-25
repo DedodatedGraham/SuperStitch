@@ -30,22 +30,25 @@ end
 %Next we will grab time data from beaglebone to get our image set 
 timedat = load(append(pwd,'/input/',timefile));
 [st,~] = size(timedat);
-tstart = timedat(1);
-tend = timedat(st);
-istart = 100000;
-iend = 0;
-branch = st / 
-for i=1:long
-    % if trestdat(i,1) > tstart && i < istart
-    %     istart = i;
-    % end
-    % if trestdat(i,1) < tend && i > iend
-    %     iend = i;
-    % end
+maxx = 0;
+maxxy = 0;
+for i=1:2:st
+    tstart = timedat(i)
+    tend = timedat(i+1)
+    griddycnt = 0;
+    for j=1:long
+        if mod(i,4) == 1
+            disp(i);
+        else
+            disp(i);
+        end
+    end
 end
 totalpic = iend - istart;
 posdat = rmmissing(readmatrix(append(pwd,'/input/',posfile)));
-%Now we have loaded in all of our data, so we will 
+%Now we have loaded in all of our data, so we will next go through
+%everything
+
 %%OLD LOAD
 % for j=1:1:N
 %     for i=1:1:M

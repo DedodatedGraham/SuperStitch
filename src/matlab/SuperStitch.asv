@@ -24,27 +24,24 @@ for i=1:long
     y = split(x(2),'.');
     t = str2double(append(y(1),'.',y(2)));
     trestdat(count,1) = t;
-
     imgpathhold(count) = append(s,timgPath(count,:).name);
     count = count + 1;
 end
 %Next we will grab time data from beaglebone to get our image set 
 timedat = load(append(pwd,'/input/',timefile));
 [st,~] = size(timedat);
-tstart = timedat(1);
-tend = timedat(st);
-istart = 100000;
-iend = 0;
-for i=1:long
-    if trestdat(i,1) > tstart && i < istart
-        istart = i;
-    end
-    if trestdat(i,1) < tend && i > iend
-        iend = i;
-    end
+maxx = 0;
+maxxy = 0;
+for i=1:2:st
+    tstart = timedat(i);
+    tend = timedat(i+1);
+    
 end
 totalpic = iend - istart;
-posdat
+posdat = rmmissing(readmatrix(append(pwd,'/input/',posfile)));
+%Now we have loaded in all of our data, so we will next go through
+%everything
+
 %%OLD LOAD
 % for j=1:1:N
 %     for i=1:1:M
