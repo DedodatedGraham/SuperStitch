@@ -1,14 +1,11 @@
-#include "Spinnaker.h"
-#include "SpinGenApi/SpinnakerGenApi.h"
+#include "Spinnaker\include\Spinnaker.h"
+#include "Spinnaker\include\SpinGenApi\SpinnakerGenApi.h"
 #include <iostream>
 #include <sstream>
 #include <ctime>
 #include <chrono>
 #include <stdlib.h>
-<<<<<<< HEAD
 #include <time.h>
-=======
->>>>>>> 0a743045146b2f6ce5eccafa6aca3111d75f9d09
 //#include <unistd.h>
 #include <thread>
 using namespace Spinnaker;
@@ -16,11 +13,9 @@ using namespace Spinnaker::GenApi;
 using namespace Spinnaker::GenICam;
 using namespace std;
 
-<<<<<<< HEAD
 #define BILLION 1000000000.0
-=======
 #define PHOTO_PER_SLIDE 8500
->>>>>>> 0a743045146b2f6ce5eccafa6aca3111d75f9d09
+
 
 int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,int numphoto)
 {
