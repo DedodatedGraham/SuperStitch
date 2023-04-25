@@ -46,12 +46,12 @@ for i=1:1:M
         disp(append('w=',string(imgpos(i,j).w)));
         disp(append('h=',string(imgpos(i,j).h)));
         if i ~= M
-            imgpos(i,j).h = imgpos(i,j).h + randi([-5,5]);
+            imgpos(i,j).h = imgpos(i,j).h ;%+ randi([-5,5]);
         else
             imgpos(i,j).h = py - imgpos(i,j).y;
         end
         if j ~= N
-            imgpos(i,j).w = imgpos(i,j).w + randi([-5,5]);
+            imgpos(i,j).w = imgpos(i,j).w ;%+ randi([-5,5]);
         else
             imgpos(i,j).w = px - imgpos(i,j).x;
         end

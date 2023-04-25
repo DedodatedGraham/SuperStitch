@@ -5,17 +5,22 @@
 #include <ctime>
 #include <chrono>
 #include <stdlib.h>
-#include <unistd.h>
+#include <time.h>
+//#include <unistd.h>
 #include <thread>
 using namespace Spinnaker;
 using namespace Spinnaker::GenApi;
 using namespace Spinnaker::GenICam;
 using namespace std;
 
+#define BILLION 1000000000.0
+
 int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,int numphoto)
 {
     int result = 0;
-
+    double difference;
+    struct timespec start,end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
     cout << endl << endl << "*** IMAGE ACQUISITION ***" << endl << endl;
 
     try
@@ -92,8 +97,10 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,i
                         ostringstream filename;
                         //long long microseconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
 
+                        clock_gettime(CLOCK_MONOTONIC, &end);
+                        difference = double(end.tv_sec - start.tv_sec) + (double(end.tv_nsec - start.tv_nsec) / BILLION);
                         filename << "SuperStitch-";
-                        filename << imageCnt << ".jpg";
+                        filename << difference << ".jpg";
 
                         // Save image
                         convertedImage->Save(filename.str().c_str());
@@ -111,7 +118,7 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,i
                 }
             }
             else{
-                std::this_thread::sleep_for(std::chrono::milliseconds(35));
+                std::this_thread::sleep_for(std::chrono::milliseconds(70));
             }
         }
 

@@ -1,4 +1,4 @@
-function []  = SuperStitch(inputPath,N,M)
+function []  = SuperStitch(inputPath,timefile,posfile)
 %% SETUP
 tStart = tic;
 %Super Stitch input 
@@ -8,39 +8,66 @@ tStart = tic;
 
 %Formatting for different OS 
 if ispc()%if Windows
-    s = append(pwd,'\input\',inputPath);
+    s = append(pwd,inputPath);
 else%Linux/Mac
-    s = append(pwd,'/input/',inputPath);
+    s = append(pwd,inputPath);
 end
-
 %Count Sort Files
 %Puts x&y locations into propper arrangement allowing for variablility
-timgPath = natsortfiles(dir(fullfile(s,'*.png')));
+timgPath = natsortfiles(dir(fullfile(s,'*.jpg')));
 [long,~] = size(timgPath);
 trestdat = zeros(long,3,'double');
 count = 1;
 imgpathhold = strings(long);
-for j=1:1:N
-    for i=1:1:M
-        x = split(timgPath(count,:).name,'-');
-        y = split(x(2),'.');
-        x = str2double(x(1));
-        y = str2double(y(1));
-        trestdat(count,1) = x;
-        trestdat(count,2) = y;
-        trestdat(count,3) = count;
-        imgpathhold(count) = append(s,timgPath(count,:).name);
-        count = count + 1;
-    end
+for i=1:long
+    x = split(timgPath(count,:).name,'-');
+    y = split(x(2),'.');
+    t = str2double(append(y(1),'.',y(2)));
+    trestdat(count,1) = t;
+    imgpathhold(count) = append(s,timgPath(count,:).name);
+    count = count + 1;
 end
-for j=1:1:N
-    stemp = sortrows(trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :),2);
-    trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :) = stemp; 
+%Next we will grab time data from beaglebone to get our image set 
+timedat = load(append(pwd,'/input/',timefile));
+[st,~] = size(timedat);
+tstart = timedat(1);
+tend = timedat(st);
+istart = 100000;
+iend = 0;
+branch = st / 
+for i=1:long
+    % if trestdat(i,1) > tstart && i < istart
+    %     istart = i;
+    % end
+    % if trestdat(i,1) < tend && i > iend
+    %     iend = i;
+    % end
 end
+totalpic = iend - istart;
+posdat = rmmissing(readmatrix(append(pwd,'/input/',posfile)));
+%Now we have loaded in all of our data, so we will 
+%%OLD LOAD
+% for j=1:1:N
+%     for i=1:1:M
+%         x = split(timgPath(count,:).name,'-');
+%         y = split(x(2),'.');
+%         x = str2double(x(1));
+%         y = str2double(y(1));
+%         trestdat(count,1) = x;
+%         trestdat(count,2) = y;
+%         trestdat(count,3) = count;
+%         imgpathhold(count) = append(s,timgPath(count,:).name);
+%         count = count + 1;
+%     end
+% end
+% for j=1:1:N
+%     stemp = sortrows(trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :),2);
+%     trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :) = stemp; 
+% end
 
 %Load needed data
 count = 1;
-imgstruct = struct('image',zeros(1,1,1,'uint8'),'surf',SURFPoints,'x',0,'y',0,'added',false);
+imgstruct = struct('image',zeros(1,1,1,'uint8'),'surf',SURFPoints,'x',0,'y',0,'added',false,'offx',0,'offy',0);
 data = repmat(imgstruct,M,N);
 cw = 0;%total heigth
 ch = 0;%total heigth
