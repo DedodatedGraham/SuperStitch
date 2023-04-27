@@ -2,7 +2,7 @@
 #include "Spinnaker\include\SpinGenApi\SpinnakerGenApi.h"
 #include <iostream>
 #include <sstream>
-#include <ctime>
+//#include <ctime>
 #include <chrono>
 #include <stdlib.h>
 #include <time.h>
@@ -21,8 +21,12 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,i
 {
     int result = 0;
     double difference;
-    struct timespec start,end;
-    clock_gettime(CLOCK_MONOTONIC, &start);
+    //struct timespec start,end;
+    //clock_gettime(CLOCK_MONOTONIC, &start);
+    auto start = chrono::high_resolution_clock::now();
+    
+    ios_base::sync_with_stdio(false);
+    
     cout << endl << endl << "*** IMAGE ACQUISITION ***" << endl << endl;
 
     try
@@ -99,9 +103,15 @@ int AcquireImages(CameraPtr pCam, INodeMap& nodeMap, INodeMap& nodeMapTLDevice,i
                         ostringstream filename;
                         //long long microseconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
 
-                        clock_gettime(CLOCK_MONOTONIC, &end);
-                        difference = double(end.tv_sec - start.tv_sec) + (double(end.tv_nsec - start.tv_nsec) / BILLION);
-                        filename << "SuperStitch-";
+                        //clock_gettime(CLOCK_MONOTONIC, &end);
+                        auto end = chrono::high_resolution_clock::now();
+			
+			//difference = double(end.tv_sec - start.tv_sec) + (double(end.tv_nsec - start.tv_nsec) / BILLION);
+			difference = chrono::duration_cast<chrono::nanoseconds>(end - start).count();
+			
+                        difference = difference / BILLION;
+
+			filename << "SuperStitch-";
                         filename << difference << ".jpg";
 
                         // Save image
@@ -218,13 +228,14 @@ int main(int argc, char *argv[]){
     //ensure file permissions
     FILE* tempFile = fopen("test.txt", "w+");
     if (tempFile == nullptr){
-        return -1;
+        cout << "File Failed to open :(" << endl;
+	return -1;
     }
     fclose(tempFile);
     remove("test.txt");
 
-    int numphoto = PHOTO_PER_SLIDE
-    if(strcmp(argv[1], "2") {
+    int numphoto = PHOTO_PER_SLIDE;
+    if(strcmp(argv[1], "2")) {
         numphoto = numphoto * 2;
     }
     
