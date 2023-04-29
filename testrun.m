@@ -2,7 +2,7 @@ clear
 clc
 timerstart = tic;
 if ispc()%if Windows
-    SuperStitch("brokenImg\","data\translation_run_4_24_9_38.txt","data\translation_run_4_24_9_38_pos.txt");
+    TestSuperStitch("\input\brokenImg\",15,60);
 else%Linux/Mac
     SuperStitch("/src/camera/","data/translation_run_4_24_9_38.txt","data/translation_run_4_24_9_38_pos.txt");
 end

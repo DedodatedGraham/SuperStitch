@@ -1,4 +1,4 @@
-function []  = SuperStitch(inputPath,timefile,posfile)
+function []  = TestSuperStitch(inputPath,N,M)
 %% SETUP
 tStart = tic;
 %Super Stitch input 
@@ -14,59 +14,59 @@ else%Linux/Mac
 end
 %Count Sort Files
 %Puts x&y locations into propper arrangement allowing for variablility
-timgPath = natsortfiles(dir(fullfile(s,'*.jpg')));
+timgPath = natsortfiles(dir(fullfile(s,'*.png')));
 [long,~] = size(timgPath);
 trestdat = zeros(long,3,'double');
 count = 1;
 imgpathhold = strings(long);
-for i=1:long
-    x = split(timgPath(count,:).name,'-');
-    y = split(x(2),'.');
-    t = str2double(append(y(1),'.',y(2)));
-    trestdat(count,1) = t;
-    imgpathhold(count) = append(s,timgPath(count,:).name);
-    count = count + 1;
-end
+% for i=1:long
+%     x = split(timgPath(count,:).name,'-');
+%     y = split(x(2),'.');
+%     t = str2double(append(y(1),'.',y(2)));
+%     trestdat(count,1) = t;
+%     imgpathhold(count) = append(s,timgPath(count,:).name);
+%     count = count + 1;
+% end
 %Next we will grab time data from beaglebone to get our image set 
-timedat = load(append(pwd,'/input/',timefile));
-[st,~] = size(timedat);
-maxx = 0;
-maxxy = 0;
-for i=1:2:st
-    tstart = timedat(i)
-    tend = timedat(i+1)
-    griddycnt = 0;
-    for j=1:long
-        if mod(i,4) == 1
-            disp(i);
-        else
-            disp(i);
-        end
-    end
-end
-totalpic = iend - istart;
-posdat = rmmissing(readmatrix(append(pwd,'/input/',posfile)));
+% timedat = load(append(pwd,'/input/',timefile));
+% [st,~] = size(timedat);
+% maxx = 0;
+% maxxy = 0;
+% for i=1:2:st
+%     tstart = timedat(i)
+%     tend = timedat(i+1)
+%     griddycnt = 0;
+%     for j=1:long
+%         if mod(i,4) == 1
+%             disp(i);
+%         else
+%             disp(i);
+%         end
+%     end
+% end
+% totalpic = iend - istart;
+% posdat = rmmissing(readmatrix(append(pwd,'/input/',posfile)));
 %Now we have loaded in all of our data, so we will next go through
 %everything
 
 %%OLD LOAD
-% for j=1:1:N
-%     for i=1:1:M
-%         x = split(timgPath(count,:).name,'-');
-%         y = split(x(2),'.');
-%         x = str2double(x(1));
-%         y = str2double(y(1));
-%         trestdat(count,1) = x;
-%         trestdat(count,2) = y;
-%         trestdat(count,3) = count;
-%         imgpathhold(count) = append(s,timgPath(count,:).name);
-%         count = count + 1;
-%     end
-% end
-% for j=1:1:N
-%     stemp = sortrows(trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :),2);
-%     trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :) = stemp; 
-% end
+for j=1:1:N
+    for i=1:1:M
+        x = split(timgPath(count,:).name,'-');
+        y = split(x(2),'.');
+        x = str2double(x(1));
+        y = str2double(y(1));
+        trestdat(count,1) = x;
+        trestdat(count,2) = y;
+        trestdat(count,3) = count;
+        imgpathhold(count) = append(s,timgPath(count,:).name);
+        count = count + 1;
+    end
+end
+for j=1:1:N
+    stemp = sortrows(trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :),2);
+    trestdat(((j - 1) * M) + 1:((j - 1) * M) + M, :) = stemp; 
+end
 
 %Load needed data
 count = 1;
@@ -181,6 +181,34 @@ end
 %         end
 %     end
 % end
+for i=1:M
+    if finalImg(i,1,1) == 0 && finalImg(i,1,2) == 0 && finalImg(i,1,2) == 0
+        runcase = true;
+        for j=2:N
+            if finalImg(i,j,1) ~= 0 || finalImg(i,1,2) ~= 0 || finalImg(i,1,2) ~= 0
+                runcase = false;
+                break
+            end
+        end
+        if runcase
+            finalImg = finalImg(1:i,:,:); 
+        end
+    end
+end
+for j=1:N
+    if finalImg(1,j,1) == 0 && finalImg(1,j,2) == 0 && finalImg(1,j,2) == 0
+        runcase = true;
+        for i=2:M
+            if finalImg(i,j,1) ~= 0 || finalImg(i,1,2) ~= 0 || finalImg(i,1,2) ~= 0
+                runcase = false;
+                break
+            end
+        end
+        if runcase
+            finalImg = finalImg(:,1:j,:); 
+        end
+    end
+end
 %Finally we will save out output image :)
 %Formatting for different OS 
 outputName = 'test.png';
